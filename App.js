@@ -17,8 +17,8 @@ export default PDFExample = () => {
   const [pdfArrayBuffer, setPdfArrayBuffer] = useState(null);
   const [newPdfSaved, setNewPdfSaved] = useState(false);
   const [newPdfPath, setNewPdfPath] = useState(null);
-  const [pageWidth, setPageWidth] = useState(0);
-  const [pageHeight, setPageHeight] = useState(0);
+  const [pageWidth, setPageWidth] = useState(null);
+  const [pageHeight, setPageHeight] = useState(null);
 
   const ref = useRef();
 
@@ -79,14 +79,15 @@ export default PDFExample = () => {
         });
       } else {
         firstPage.drawImage(signatureImage, {
-          x: (firstPage.getWidth() * x) / pageWidth,
+          x: (firstPage.getWidth() * x) / pageWidth - 25,
           y:
             firstPage.getHeight() -
             (firstPage.getHeight() * y) / pageHeight -
-            25,
+            firstPage.getHeight() * 0.0105338567222767,
           width: 50,
           height: 50,
         });
+        console.log('ini', firstPage.getHeight());
       }
       // Play with these values as every project has different requirements
 
@@ -139,6 +140,7 @@ export default PDFExample = () => {
   // console.log(newPdfSaved);
   console.log(signatureArrayBuffer);
   // console.log(pdfEditMode);
+  console.log('ini page height', pageHeight);
 
   return (
     <View style={styles.container}>
@@ -169,8 +171,6 @@ export default PDFExample = () => {
                 onLoadComplete={(numberOfPages, filePath, {width, height}) => {
                   setPageWidth(width);
                   setPageHeight(height);
-                  console.log(width);
-                  console.log(height);
                 }}
                 onPageChanged={(page, numberOfPages) => {
                   console.log(`current page: ${page}`);
