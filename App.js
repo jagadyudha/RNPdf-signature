@@ -7,6 +7,14 @@ import {PDFDocument} from 'pdf-lib';
 import {decode as atob, encode as btoa} from 'base-64';
 const RNFS = require('react-native-fs');
 
+import {LogBox} from 'react-native';
+
+// Ignore log notification by message:
+LogBox.ignoreLogs(['Warning: ...']);
+
+// Ignore all log notifications:
+LogBox.ignoreAllLogs();
+
 export default PDFExample = () => {
   const [result, setResult] = useState();
   const [getSignaturePad, setSignaturePad] = useState(false);
@@ -19,6 +27,7 @@ export default PDFExample = () => {
   const [newPdfPath, setNewPdfPath] = useState(null);
   const [pageWidth, setPageWidth] = useState(null);
   const [pageHeight, setPageHeight] = useState(null);
+  const [reset, setReset] = useState(null);
 
   const ref = useRef();
 
@@ -57,12 +66,25 @@ export default PDFExample = () => {
     setPdfEditMode(true);
   };
 
+  handleReset = () => {
+    setPdfEditMode(true);
+    setNewPdfSaved(false);
+    setResult(reset);
+    RNFS.readFile(`${reset}`, 'base64').then(contents => {
+      setPdfBase64(contents);
+      setPdfArrayBuffer(this._base64ToArrayBuffer(contents));
+    });
+    console.log('ini result', result);
+    console.log('ini reset', reset);
+  };
+
   handleSingleTap = async (page, x, y) => {
     console.log(`tap: ${page}`);
     console.log(`x: ${x}`);
     console.log(`y: ${y}`);
 
     if (pdfEditMode) {
+      //edit here
       setNewPdfSaved(false);
       setPdfEditMode(false);
       const pdfDoc = await PDFDocument.load(pdfArrayBuffer);
@@ -74,8 +96,8 @@ export default PDFExample = () => {
         firstPage.drawImage(signatureImage, {
           x: (pageWidth * (x - 12)) / Dimensions.get('window').width,
           y: pageHeight - (pageHeight * (y + 12)) / 540,
-          width: 50,
-          height: 50,
+          width: 80,
+          height: 80,
         });
       } else {
         firstPage.drawImage(signatureImage, {
@@ -128,7 +150,6 @@ export default PDFExample = () => {
     }
     if (newPdfSaved) {
       setResult(newPdfPath);
-      console.log(this._base64ToArrayBuffer(pdfBase64));
       setPdfArrayBuffer(this._base64ToArrayBuffer(pdfBase64));
     }
   }, [signatureBase64, newPdfSaved, result]);
@@ -137,10 +158,8 @@ export default PDFExample = () => {
                   body,html {
                   width: 100%; height: 50%;}`;
 
-  // console.log(newPdfSaved);
-  console.log(signatureArrayBuffer);
-  // console.log(pdfEditMode);
-  console.log('ini page height', pageHeight);
+  console.log(reset);
+  console.log(result);
 
   return (
     <View style={styles.container}>
@@ -191,12 +210,17 @@ export default PDFExample = () => {
                 title="Tanda Tangan Dokumen"
                 onPress={getSignature}
               />
+              <Button
+                style={{width: '80%'}}
+                title="reset"
+                onPress={handleReset}
+              />
             </>
           )}
         </>
       ) : (
         <Button
-          title="open picker for single file selection"
+          title="Buka PDF"
           onPress={async () => {
             try {
               const pickerResult = await DocumentPicker.pickSingle({
@@ -204,6 +228,7 @@ export default PDFExample = () => {
                 copyTo: 'cachesDirectory',
               });
               setResult(pickerResult.fileCopyUri);
+              setReset(pickerResult.fileCopyUri);
               RNFS.readFile(`${pickerResult.fileCopyUri}`, 'base64').then(
                 contents => {
                   setPdfBase64(contents);
