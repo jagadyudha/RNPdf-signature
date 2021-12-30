@@ -10,7 +10,7 @@ const SignaturePad = ({ route, navigation }) => {
 
   const style = `.m-signature-pad {box-shadow: none; border: none; } 
                   body,html {
-                  width: 100%; height: 50%;}`;
+                  width: 100%; height: 90%;}`;
 
   return (
     <SignatureScreen
@@ -21,6 +21,7 @@ const SignaturePad = ({ route, navigation }) => {
       descriptionText='Sign'
       clearText='Clear'
       confirmText='Confirm'
+      trimWhitespace={true}
     />
   );
 };
