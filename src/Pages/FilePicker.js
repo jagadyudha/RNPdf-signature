@@ -4,6 +4,7 @@ import { fontSizer } from '../Utils/Font';
 import HomeImage from '../Assets/home.png';
 import { windowWidth } from '../Utils/Dimension';
 import DocumentPicker, { isInProgress } from 'react-native-document-picker';
+const RNFS = require('react-native-fs');
 
 const FilePicker = ({ navigation }) => {
   const HandleOpenFile = async () => {
@@ -12,16 +13,16 @@ const FilePicker = ({ navigation }) => {
         presentationStyle: 'fullScreen',
         copyTo: 'cachesDirectory',
       });
-      navigation.navigate('PdfReader', {
-        pdfurl: pickerResult.fileCopyUri,
-        pdfname: pickerResult.name,
-      });
-      //   RNFS.readFile(`${pickerResult.fileCopyUri}`, 'base64').then(
-      //     contents => {
-      //       setPdfBase64(contents);
-      //       setPdfArrayBuffer(this._base64ToArrayBuffer(contents));
-      //     },
-      //   );
+
+      RNFS.readFile(`${pickerResult.fileCopyUri}`, 'base64').then(
+        (contents) => {
+          navigation.navigate('PdfReader', {
+            pdfurl: pickerResult.fileCopyUri,
+            pdfname: pickerResult.name,
+            pdfbase: contents,
+          });
+        }
+      );
     } catch (e) {
       handleError(e);
     }
