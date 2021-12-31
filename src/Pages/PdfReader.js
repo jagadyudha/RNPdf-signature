@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
+import React, {useEffect} from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions } from 'react-native';
 import Pdf from 'react-native-pdf';
 import { windowWidth } from '../Utils/Dimension';
 import { fontSizer } from '../Utils/Font';
@@ -54,8 +54,8 @@ const PdfReader = ({ route, navigation }) => {
   };
 
   const handleDone = async () => {
-    setPdfArrayBuffer(_base64ToArrayBuffer(pdfBase64));
-    setSignatureArrayBuffer(_base64ToArrayBuffer(signatureBase64));
+    // setPdfArrayBuffer(_base64ToArrayBuffer(pdfBase64));
+    // setSignatureArrayBuffer(_base64ToArrayBuffer(signatureBase64));
     if (pdfArrayBuffer && signatureArrayBuffer) {
       const pdfDoc = await PDFDocument.load(pdfArrayBuffer);
       const pages = pdfDoc.getPages();
@@ -71,15 +71,15 @@ const PdfReader = ({ route, navigation }) => {
         });
       } else {
         firstPage.drawImage(signatureImage, {
-          x: (firstPage.getWidth() * location.cxValue) / pageSize.width,
+          x: ((pageSize.width * (location.cxValue - 12)) / Dimensions.get("window").width),
+          // y:
+          // (firstPage.getHeight() - ((firstPage.getHeight() * location.cyValue) / firstPage.getHeight())) - ( location.cyValue*1.1),
           y:
-            firstPage.getHeight() -
-            (firstPage.getHeight() * location.cyValue) / pageSize.height -
-            25,
-          width: signatureSize.width + 50,
+          (firstPage.getHeight() - ((firstPage.getHeight() * location.cyValue) / firstPage.getHeight()*2)) - 25,
+          width: signatureSize.width + 30,
           height: signatureSize.height + 50,
         });
-        console.log('ini', firstPage.getHeight());
+        console.log('ini firtstpage ', firstPage.getHeight());
       }
       // Play with these values as every project has different requirements
 
@@ -100,7 +100,12 @@ const PdfReader = ({ route, navigation }) => {
     }
   };
 
-  console.log(location);
+  useEffect(() => {
+    if (signatureBase64 && pdfBase64) {
+      setSignatureArrayBuffer(_base64ToArrayBuffer(signatureBase64));
+      setPdfArrayBuffer(_base64ToArrayBuffer(pdfBase64));
+    }
+  }, [signatureBase64, pdfBase64]);
 
   return (
     <View style={styles.container}>
@@ -118,11 +123,14 @@ const PdfReader = ({ route, navigation }) => {
           setPageSize({
             width,
             height,
-            page: numberOfPages,
+            page:1
           });
         }}
         onPageChanged={(page, numberOfPages) => {
-          console.log(`current page: ${page}`);
+          setPageSize((prevState) => ({
+            ...prevState,
+            page
+          }))
         }}
         onError={(error) => {
           console.log(error);
@@ -131,7 +139,10 @@ const PdfReader = ({ route, navigation }) => {
           console.log(`Link presse: ${uri}`);
         }}
         // onPageSingleTap={(page, x, y) => {
-        //   this.handleSingleTap(page, x, y);
+        //   setPageSize((prevState) => ({
+        //     ...prevState,
+        //     page
+        //   }))
         // }}
 
         onTouchStart={(e) => {
@@ -141,6 +152,8 @@ const PdfReader = ({ route, navigation }) => {
               cxValue: e.nativeEvent.locationX,
               cyValue: e.nativeEvent.locationY,
             });
+
+    
           }
         }}
         style={styles.pdf}
@@ -178,10 +191,11 @@ const PdfReader = ({ route, navigation }) => {
           y={location.cyValue}
           w={50}
           h={50}
+          onDrag={(e) => getCoord(e)}
           onDragEnd={(e) => getCoord(e)}
           onResizeEnd={(e) => getCoord(e)}
           // onResizeEnd={this._resizeRelease}
-          connectors={['tl', 'tr', 'br', 'bl', 'c']}
+          connectors={['tl', 'tm', 'tr', 'br', 'bl',, 'c']}
         >
           <View
             onLayout={(e) =>
