@@ -1,5 +1,12 @@
-import React, {useEffect} from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions } from 'react-native';
+import React, { useEffect } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  Dimensions,
+} from 'react-native';
 import Pdf from 'react-native-pdf';
 import { windowWidth } from '../Utils/Dimension';
 import { fontSizer } from '../Utils/Font';
@@ -54,14 +61,16 @@ const PdfReader = ({ route, navigation }) => {
   };
 
   const handleDone = async () => {
-    // setPdfArrayBuffer(_base64ToArrayBuffer(pdfBase64));
-    // setSignatureArrayBuffer(_base64ToArrayBuffer(signatureBase64));
     if (pdfArrayBuffer && signatureArrayBuffer) {
       const pdfDoc = await PDFDocument.load(pdfArrayBuffer);
       const pages = pdfDoc.getPages();
       const firstPage = pages[pageSize.page - 1];
 
       const signatureImage = await pdfDoc.embedPng(signatureArrayBuffer);
+      const dimension = (height) => {
+        if (height < 841.92) {
+        }
+      };
       if (Platform.OS == 'ios') {
         firstPage.drawImage(signatureImage, {
           x: (pageWidth * (x - 12)) / Dimensions.get('window').width,
@@ -71,15 +80,20 @@ const PdfReader = ({ route, navigation }) => {
         });
       } else {
         firstPage.drawImage(signatureImage, {
-          x: ((pageSize.width * (location.cxValue - 12)) / Dimensions.get("window").width),
+          x:
+            (pageSize.width * (location.cxValue - 12)) /
+            Dimensions.get('window').width,
           // y:
           // (firstPage.getHeight() - ((firstPage.getHeight() * location.cyValue) / firstPage.getHeight())) - ( location.cyValue*1.1),
           y:
-          (firstPage.getHeight() - ((firstPage.getHeight() * location.cyValue) / firstPage.getHeight()*2)) - 25,
+            firstPage.getHeight() -
+            ((firstPage.getHeight() * location.cyValue) / pageSize.height) *
+              2.1,
           width: signatureSize.width + 30,
           height: signatureSize.height + 50,
         });
         console.log('ini firtstpage ', firstPage.getHeight());
+        console.log('ini pagesize', pageSize.height);
       }
       // Play with these values as every project has different requirements
 
@@ -123,14 +137,14 @@ const PdfReader = ({ route, navigation }) => {
           setPageSize({
             width,
             height,
-            page:1
+            page: 1,
           });
         }}
         onPageChanged={(page, numberOfPages) => {
           setPageSize((prevState) => ({
             ...prevState,
-            page
-          }))
+            page,
+          }));
         }}
         onError={(error) => {
           console.log(error);
@@ -152,8 +166,6 @@ const PdfReader = ({ route, navigation }) => {
               cxValue: e.nativeEvent.locationX,
               cyValue: e.nativeEvent.locationY,
             });
-
-    
           }
         }}
         style={styles.pdf}
@@ -195,7 +207,7 @@ const PdfReader = ({ route, navigation }) => {
           onDragEnd={(e) => getCoord(e)}
           onResizeEnd={(e) => getCoord(e)}
           // onResizeEnd={this._resizeRelease}
-          connectors={['tl', 'tm', 'tr', 'br', 'bl',, 'c']}
+          connectors={['tl', 'tm', 'tr', 'br', 'bl', , 'c']}
         >
           <View
             onLayout={(e) =>

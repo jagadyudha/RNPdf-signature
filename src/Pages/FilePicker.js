@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 import { fontSizer } from '../Utils/Font';
 import HomeImage from '../Assets/home.png';
-import { windowWidth } from '../Utils/Dimension';
+import { windowHeight, windowWidth } from '../Utils/Dimension';
 import DocumentPicker, { isInProgress } from 'react-native-document-picker';
 const RNFS = require('react-native-fs');
 
@@ -52,14 +52,14 @@ const FilePicker = ({ navigation }) => {
       <Image
         style={{
           width: windowWidth() * 0.8199513381995134,
-          aspectRatio: 1,
-          resizeMode: 'contain',
+          height: windowHeight() * 0.36452,
         }}
         source={HomeImage}
       />
       <TouchableOpacity
         onPress={HandleOpenFile}
         style={{
+          marginTop: 20,
           backgroundColor: '#369BFE',
           paddingVertical: 10,
           borderRadius: 5,
